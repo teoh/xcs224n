@@ -1,0 +1,10 @@
+name: A1
+channels:
+  - defaults
+dependencies:
+  - python=3.6
+  - numpy=1.15.4
+  - scipy=1.1.0
+  - scikit-learn=0.21.2
+  - matplotlib=3.0.3
+  - nltk=3.4.1
