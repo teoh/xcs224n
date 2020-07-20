@@ -67,7 +67,7 @@ class NMT(nn.Module):
         ###     Dropout Layer:
         ###         https://pytorch.org/docs/stable/nn.html#torch.nn.Dropout
         self.encoder = nn.LSTM(embed_size, hidden_size, bidirectional=True)
-        self.decoder = nn.LSTMCell(hidden_size * 2, hidden_size)
+        self.decoder = nn.LSTMCell(hidden_size + embed_size, hidden_size)
         self.h_projection = nn.Linear(hidden_size * 2, hidden_size, bias=False)
         self.c_projection = nn.Linear(hidden_size * 2, hidden_size, bias=False)
         self.att_projection = nn.Linear(hidden_size * 2, hidden_size, bias=False)
@@ -249,11 +249,11 @@ class NMT(nn.Module):
             # print(o_prev)
             Ybar_t = torch.cat((Y_t, o_prev), -1)
             # print(Ybar_t)
-            (new_cell, new_state), o_t, e_t = self.step(Ybar_t,
-                                                        dec_state,
-                                                        enc_hiddens,
-                                                        enc_hiddens_proj,
-                                                        enc_masks)
+            dec_state, o_t, e_t = self.step(Ybar_t,
+                                            dec_state,
+                                            enc_hiddens,
+                                            enc_hiddens_proj,
+                                            enc_masks)
             combined_outputs.append(o_t)
             o_prev = o_t
 
