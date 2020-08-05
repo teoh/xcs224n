@@ -7,6 +7,9 @@ sanity_check.py: sanity checks for assignment 5
 Usage:
     sanity_check.py 1a
     sanity_check.py 1b
+    sanity_check.py 1c
+    sanity_check.py 1d
+    sanity_check.py 1e
     sanity_check.py 1f
     sanity_check.py 2a
     sanity_check.py 2b
@@ -26,6 +29,7 @@ from char_decoder import CharDecoder
 from nmt_model import NMT
 from utils import pad_sents_char
 from vocab import Vocab, VocabEntry
+from highway import Highway
 
 # ----------
 # CONSTANTS
@@ -100,6 +104,78 @@ def question_1b_sanity_check():
     print("Sanity Check Passed for Question 1b: Padding!")
     print("-" * 80)
 
+
+def question_1c_sanity_check():
+    """ Sanity check for to_input_tensor_char() function.
+    """
+    print("-" * 80)
+    print("Running Sanity Check for Question 1c: Input tensor char")
+    print("-" * 80)
+    vocab = VocabEntry()
+
+    print("Running test on a list of sentences")
+    sentences = [['Human:', 'What', 'do', 'we', 'want?'], ['Computer:', 'Natural', 'language', 'processing!'],
+                 ['Human:', 'When', 'do', 'we', 'want', 'it?'], ['Computer:', 'When', 'do', 'we', 'want', 'what?']]
+
+    gold_padded_sentences = torch.load('./sanity_check_en_es_data/gold_padded_sentences.pkl')
+    max_sentence_length = len(gold_padded_sentences[0])
+
+    input_tensor_char = vocab.to_input_tensor_char(sentences, None)
+    assert input_tensor_char.shape == (max_sentence_length, len(sentences), 21)
+
+
+def question_1d_sanity_check():
+    """ Sanity check for whole highway function.
+    """
+    print("-" * 80)
+    print("Running Sanity Check for Question 1d: Highway")
+    print("-" * 80)
+    hw = Highway(EMBED_SIZE, DROPOUT_RATE)
+
+    x_conv_out = torch.FloatTensor(
+        np.array([[1,2,3],
+                  [4,5,6]]))
+    W_proj = torch.nn.Parameter(torch.FloatTensor(
+        np.array([[-1,-1,-1],
+                  [-1,-1,-1],
+                  [-1,-1,-1]])))
+    b_proj = torch.nn.Parameter(torch.FloatTensor(np.array([100, -100, 0])))
+
+    W_gate = torch.nn.Parameter(torch.FloatTensor(
+        np.array([[-0.1, -0.1, -0.1],
+                  [-0.1, -0.1, -0.1],
+                  [-0.1, -0.1, -0.1]])))
+    b_gate = torch.nn.Parameter(torch.FloatTensor(np.array([.1, -.10, 0])))
+
+    hw.proj_projection.weight, hw.proj_projection.bias = W_proj, b_proj
+    hw.gate_projection.weight, hw.gate_projection.bias = W_gate, b_gate
+
+    # x_proj_pre = np.array([[94,-106,-6 ],
+    #                        [85,-115,-15]])
+    # x_proj = np.array([[94,  0,  0],
+    #                 [85,  0,  0]])
+
+    # x_gate_pre = np.array([[-0.5, -0.7, -0.6],
+    #                     [-1.4, -1.6, -1.5]])
+    # x_gate = np.array([[0.37754067, 0.33181223, 0.35434369],
+    #                    [0.19781611, 0.16798161, 0.18242552]])
+    x_highway = torch.FloatTensor(
+        np.array([[36.11128231,  1.33637554,  1.93696893],
+                  [20.02310491,  4.16009195,  4.90544688]]))
+
+    actual_highway = hw(x_conv_out)
+    assert torch.allclose(actual_highway, x_highway)
+    print("Sanity Check Passed for Question 1d: Highway!")
+    print("-" * 80)
+
+def question_1e_sanity_check():
+    """ Sanity check for whole cnn."""
+    print("-" * 80)
+    print("Running Sanity Check for Question 1e: CNN")
+    print("-" * 80)
+    assert False, 'not done yet'
+    print("Sanity Check Passed for Question 1e: CNN!")
+    print("-" * 80)
 
 def question_1f_sanity_check(model):
     """ Sanity check for model_embeddings.py
@@ -246,6 +322,12 @@ def main():
         question_1a_sanity_check()
     elif args['1b']:
         question_1b_sanity_check()
+    elif args['1c']:
+        question_1c_sanity_check()
+    elif args['1d']:
+        question_1d_sanity_check()
+    elif args['1e']:
+        question_1e_sanity_check()
     elif args['1f']:
         question_1f_sanity_check(model)
     elif args['2a']:

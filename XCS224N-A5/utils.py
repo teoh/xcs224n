@@ -11,29 +11,50 @@ import torch.nn.functional as F
 
 def pad_sents_char(sents, char_pad_token):
     """ Pad list of sentences according to the longest sentence in the batch and max_word_length.
-    @param sents (list[list[list[int]]]): list of sentences, result of `words2charindices()` 
+    @param sents (list[list[list[int]]]): list of sentences, result of `words2charindices()`
         from `vocab.py`
     @param char_pad_token (int): index of the character-padding token
     @returns sents_padded (list[list[list[int]]]): list of sentences where sentences/words shorter
         than the max length sentence/word are padded out with the appropriate pad token, such that
-        each sentence in the batch now has same number of words and each word has an equal 
+        each sentence in the batch now has same number of words and each word has an equal
         number of characters
         Output shape: (batch_size, max_sentence_length, max_word_length)
     """
     # Words longer than 21 characters should be truncated
-    max_word_length = 21 
+    max_word_length = 21
 
     ### YOUR CODE HERE for part 1b
     ### TODO:
-    ###     Perform necessary padding to the sentences in the batch similar to the pad_sents() 
-    ###     method below using the padding character from the arguments. You should ensure all 
-    ###     sentences have the same number of words and each word has the same number of 
-    ###     characters. 
-    ###     Set padding words to a `max_word_length` sized vector of padding characters.  
+    ###     Perform necessary padding to the sentences in the batch similar to the pad_sents()
+    ###     method below using the padding character from the arguments. You should ensure all
+    ###     sentences have the same number of words and each word has the same number of
+    ###     characters.
+    ###     Set padding words to a `max_word_length` sized vector of padding characters.
     ###
-    ###     You should NOT use the method `pad_sents()` below because of the way it handles 
+    ###     You should NOT use the method `pad_sents()` below because of the way it handles
     ###     padding and unknown words.
+    max_sentence_length = max(list(map(len, sents)))
+    padding_word = max_word_length * [char_pad_token]
 
+    def pad_word(word_char_list):
+        word_len = len(word_char_list)
+        if word_len >= max_word_length:
+            return word_char_list[:max_word_length]
+        else:
+            return word_char_list + \
+                [char_pad_token] * (max_word_length - word_len)
+
+    def pad_sentence(sentence_word_list):
+        sent_len = len(sentence_word_list)
+        assert sent_len <= max_sentence_length
+        if sent_len < max_sentence_length:
+            return sentence_word_list + \
+                [padding_word] * (max_sentence_length - sent_len)
+        return sentence_word_list
+
+    sents_padded = [
+        pad_sentence([pad_word(word) for word in sent]) for sent in sents
+    ]
 
     ### END YOUR CODE
 
