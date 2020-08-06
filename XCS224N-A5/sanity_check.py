@@ -30,6 +30,7 @@ from nmt_model import NMT
 from utils import pad_sents_char
 from vocab import Vocab, VocabEntry
 from highway import Highway
+from cnn import Cnn
 
 # ----------
 # CONSTANTS
@@ -47,6 +48,10 @@ class DummyVocab():
         self.char_unk = self.char2id['<unk>']
         self.start_of_word = self.char2id["{"]
         self.end_of_word = self.char2id["}"]
+
+
+def get_param_from_np(n_mtx):
+    return torch.nn.Parameter(torch.FloatTensor(n_mtx))
 
 
 def question_1a_sanity_check():
@@ -168,12 +173,81 @@ def question_1d_sanity_check():
     print("Sanity Check Passed for Question 1d: Highway!")
     print("-" * 80)
 
+
 def question_1e_sanity_check():
     """ Sanity check for whole cnn."""
     print("-" * 80)
     print("Running Sanity Check for Question 1e: CNN")
     print("-" * 80)
-    assert False, 'not done yet'
+    cnn = Cnn(3, 2, 3)
+    # x_reshaped = torch.FloatTensor(np.array(
+    #     [
+    #         [[1,2,3,4,5,6,7,8],
+    #          [5,6,7,8,9,10,11,12],
+    #          [9,10,11,12,13,14,15,16]]
+    #     ]
+    # ))
+    x_reshaped = torch.FloatTensor(np.array(
+        [
+            [[1,2,3,4,5,6,7,8],
+             [5,6,7,8,9,10,11,12],
+             [9,10,11,12,13,14,15,16]]
+        ]
+    ))
+    # W = get_param_from_np(np.array(
+    #     [
+    #         [
+    #             [10, -10],
+    #             [20, -20],
+    #             [30, -30],
+    #         ],
+    #         [
+    #             [1, -.10],
+    #             [2, -.20],
+    #             [3, -.30],
+    #         ],
+    #         [
+    #             [-.10, 1],
+    #             [-.20, 2],
+    #             [-.30, 3],
+    #         ]
+    #     ]
+    # ))
+    W = get_param_from_np(np.array(
+        [
+            [
+                [10, -10],
+                [20, -20],
+                [30, -30],
+            ],
+            [
+                [1, -.10],
+                [2, -.20],
+                [3, -.30],
+            ],
+            [
+                [-.10, 1],
+                [-.20, 2],
+                [-.30, 3],
+            ]
+        ]
+    ))
+    b = get_param_from_np(np.array([5, -5, 0.5]))
+    # b = np.array([5, -5, 0.5])
+
+    # x_conv = np.array([[-55. , -55. , -55. ],
+    #                    [ 28.6,  34. ,  39.4 ],
+    #                    [ 40.7,  46.1,  51.5 ]])
+    x_conv_out = torch.FloatTensor(
+        np.array([ 0. , 61. , 73.1 ]))
+    # x_conv_out = torch.FloatTensor(
+    #     np.array([ 0. , 39.4, 51.5 ]))
+
+
+    cnn.conv.weight, cnn.conv.bias = W, b
+    actual_output = cnn(x_reshaped)
+    assert torch.allclose(actual_output,
+                          x_conv_out)
     print("Sanity Check Passed for Question 1e: CNN!")
     print("-" * 80)
 
