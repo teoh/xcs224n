@@ -39,14 +39,14 @@ class ModelEmbeddings(nn.Module):
         self.kernel_size = 5
         self.dropout_rate = 0.3
 
-        self.word_embedding_size = embed_size
+        self.embed_size = embed_size
         self.embeddings = nn.Embedding(len(vocab.char2id),
                                        self.char_embedding_size,
                                        padding_idx=pad_token_idx)
         self.cnn = CNN(self.char_embedding_size,
                        kernel_size=self.kernel_size,
-                       num_filters=self.word_embedding_size)
-        self.highway = Highway(self.word_embedding_size,
+                       num_filters=self.embed_size)
+        self.highway = Highway(self.embed_size,
                                self.dropout_rate)
         ### END YOUR CODE
 
