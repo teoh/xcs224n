@@ -30,7 +30,7 @@ from nmt_model import NMT
 from utils import pad_sents_char
 from vocab import Vocab, VocabEntry
 from highway import Highway
-from cnn import Cnn
+from cnn import CNN
 
 # ----------
 # CONSTANTS
@@ -179,7 +179,7 @@ def question_1e_sanity_check():
     print("-" * 80)
     print("Running Sanity Check for Question 1e: CNN")
     print("-" * 80)
-    cnn = Cnn(3, 2, 3)
+    cnn = CNN(3, 2, 3)
     # x_reshaped = torch.FloatTensor(np.array(
     #     [
     #         [[1,2,3,4,5,6,7,8],
