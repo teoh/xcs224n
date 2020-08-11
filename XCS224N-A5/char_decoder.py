@@ -126,7 +126,7 @@ class CharDecoder(nn.Module):
             sequences[step + 1] = scores.argmax(-1)
 
         chars_raw = list(map(lambda id_list: [self.target_vocab.id2char[i] for i in id_list],
-                             sequences.transpose(0, 1).numpy()))
+                             sequences.cpu().transpose(0, 1).numpy()))
         decodedWords = list(map(lambda chars: ''.join(self._clean_char_list(chars)),
                                 chars_raw))
         return decodedWords
